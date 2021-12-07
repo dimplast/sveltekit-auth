@@ -10,6 +10,7 @@ export async function get({ headers: { cookie } }) {
 		await removeSession(cookies.session_id);
 	}
 
+	//Σημείωση
 	return {
 		status: 200,
 		headers: {

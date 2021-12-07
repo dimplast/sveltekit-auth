@@ -1,12 +1,11 @@
-import { createSession, getUserByEmail, registerUser } from "./_db";
+import { createSession, GRAPHCMS_ENDPOINT, GRAPHCMS_TOKEN } from "./_db";
 import {serialize} from 'cookie'
 //import { connectToDatabase } from '$lib/db';
 import { compare, hash } from "bcryptjs";
 import { GraphQLClient, gql } from 'graphql-request'
 
 
-const GRAPHCMS_ENDPOINT = process.env['GRAPHCMS_ENDPOINT']
-const GRAPHCMS_TOKEN = process.env['GRAPHCMS_TOKEN']
+
 
 
 export async function post({body:{email,password}}){

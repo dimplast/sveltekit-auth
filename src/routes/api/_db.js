@@ -1,5 +1,8 @@
 import { v4 as uuidv4 } from 'uuid'
 
+export const GRAPHCMS_ENDPOINT = process.env['GRAPHCMS_ENDPOINT']
+export const GRAPHCMS_TOKEN = process.env['GRAPHCMS_TOKEN']
+
 const users = [
     {
         email:'mail@example.com',

@@ -30,10 +30,6 @@ export async function post({body:{email,password}}){
 
 	if (!user || !isValid) {
 
-		console.log(user.password)
-		console.log(password)
-		console.log(isValid)
-
 		return {
 			status: 401,
 			body: {
@@ -42,7 +38,10 @@ export async function post({body:{email,password}}){
 		};
 	}
    
-    const { id } = await createSession(email);
+    //const { id } = await createSession(email);
+	
+	const json = JSON.stringify(user)
+    const id = Buffer.from(json).toString('base64')
 
 	return {
 		status: 200,

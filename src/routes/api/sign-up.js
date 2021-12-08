@@ -49,10 +49,10 @@ export async function post({body:{email,password}}){
    
       const {newUser} = await graphQLClient.request(CreateUser, {email,password: await hash(password,12)})
         
-      //const json = JSON.stringify(newUser)
-      //const value = Buffer.from(json).toString('base64')
+      const json = JSON.stringify(newUser)
+      const id = Buffer.from(json).toString('base64')
       
-      const { id } = await createSession(email);
+      //const { id } = await createSession(email);
 
       return {
 		status: 201,

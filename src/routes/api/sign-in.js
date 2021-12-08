@@ -1,12 +1,8 @@
-import { createSession, getUserByEmail, registerUser } from "./_db";
+import { createSession, GRAPHCMS_ENDPOINT, GRAPHCMS_TOKEN } from "./_db";
 import {serialize} from 'cookie'
 //import { connectToDatabase } from '$lib/db';
 import { compare, hash } from "bcryptjs";
 import { GraphQLClient, gql } from 'graphql-request'
-
-
-const GRAPHCMS_ENDPOINT = process.env['GRAPHCMS_ENDPOINT']
-const GRAPHCMS_TOKEN = process.env['GRAPHCMS_TOKEN']
 
 
 export async function post({body:{email,password}}){
@@ -17,7 +13,6 @@ export async function post({body:{email,password}}){
         },
       })
 
-      console.log(graphQLClient)
 
       const GetUser = gql`
         query GetUser($email: String!) {
@@ -28,11 +23,17 @@ export async function post({body:{email,password}}){
             }
         }
         `;
-            
-      const { user } = await graphQLClient.request(GetUser, { email});  
+    
+	 const { user } = await graphQLClient.request(GetUser, { email});  
 
+	 const isValid = await compare(password, user.password);
 
-	if (!user || await compare(user.password, password)) {
+	if (!user || !isValid) {
+
+		console.log(user.password)
+		console.log(password)
+		console.log(isValid)
+
 		return {
 			status: 401,
 			body: {
@@ -41,40 +42,15 @@ export async function post({body:{email,password}}){
 		};
 	}
    
-   
-    //const user = await getUserByEmail(email)
-    //const dbConnection = await connectToDatabase();
-    //const db = dbConnection.db;
-
-    // Is there a user with such an email?
-    //const user = await db.collection('users').findOne({ email: email });
-
-    /*if(user){
-        return {
-            status:409,
-            body: {
-                message: 'User already exists'
-            }
-        }
-    }*/
-
-    //await registerUser({email,password})
-
-    /*await db.collection('users').insertOne({
-        email: email,
-        password: password
-    });*/
-
-    
     const { id } = await createSession(email);
+
 	return {
 		status: 200,
 		headers: {
-			'Set-Cookie': serialize('session_id', id, {
+			'Set-Cookie': serialize('jwt', id, {
 				path: '/',
 				httpOnly: true,
 				sameSite: 'strict',
-				secure: process.env.NODE_ENV === 'production',
 				maxAge: 60 * 60 * 24 * 7, // one week
 			}),
 		},
@@ -82,6 +58,7 @@ export async function post({body:{email,password}}){
 			message: 'Successfully signed in',
 		},
 	};
+
 }
 
 
@@ -90,44 +67,3 @@ export async function post({body:{email,password}}){
 
 
 
-
-/*import { createSession, getUserByEmail } from './_db';
-import { serialize } from 'cookie';
-//import { connectToDatabase } from '$lib/mongo_db';
-
-export async function post({ body: { email, password } }) {
-
-    //const user = await getUserByEmail(email);
-	const dbConnection = await connectToDatabase();
-    const db = dbConnection.db;
-
-    const user = await db.collection('users').findOne({ email: email });
-
-	console.log(email)
-
-	if (!user || user.password !== password) {
-		return {
-			status: 401,
-			body: {
-				message: 'Incorrect user or password',
-			},
-		};
-	}
-
-	const { id } = await createSession(email);
-	return {
-		status: 200,
-		headers: {
-			'Set-Cookie': serialize('session_id', id, {
-				path: '/',
-				httpOnly: true,
-				sameSite: 'strict',
-				secure: process.env.NODE_ENV === 'production',
-				maxAge: 60 * 60 * 24 * 7, // one week
-			}),
-		},
-		body: {
-			message: 'Successfully signed in',
-		},
-	};
-}*/

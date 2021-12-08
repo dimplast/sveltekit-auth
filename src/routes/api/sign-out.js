@@ -1,20 +1,15 @@
-import { removeSession } from './_db';
+//import { removeSession } from './_db';
 import { parse, serialize } from 'cookie';
 
-
+/** @type {import('@sveltejs/kit').RequestHandler} */
 export async function get({ headers: { cookie } }) {
 
-    const cookies = parse(cookie || '');
+	console.log(cookie)
 
-	if (cookies.session_id) {
-		await removeSession(cookies.session_id);
-	}
-
-	//Σημείωση
 	return {
-		status: 200,
+		status: 302,
 		headers: {
-			'Set-Cookie': serialize('session_id', '', {
+			'Set-Cookie': serialize('jwt', '', {
 				path: '/',
 				expires: new Date(0),
 			}),

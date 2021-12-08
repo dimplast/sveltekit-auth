@@ -1,5 +1,6 @@
 <script>
     import {session} from '$app/stores';
+    import * as cookie from 'cookie';
   
     const navigation = [
       {
@@ -13,10 +14,12 @@
     ];
   
     async function handleSignOut() {
-      await fetch("/api/sign-out")
-  
-      window.location = "/sign-in";
-    }
+      await fetch('/api/sign-out');
+      // this will trigger a redirect, because it
+      // causes the `load` function to run again
+      $session.user = null;
+	  }
+
   </script>
   
   <header class='bg-indigo-600'>

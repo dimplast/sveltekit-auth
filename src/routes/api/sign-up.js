@@ -16,7 +16,6 @@ export async function post({body:{email,password}}){
         },
       })
 
-      console.log(graphQLClient)
 
       const GetUser = gql`
         query GetUser($email: String!) {
@@ -49,94 +48,27 @@ export async function post({body:{email,password}}){
       }
    
       const {newUser} = await graphQLClient.request(CreateUser, {email,password: await hash(password,12)})
-    
-   
+        
+      //const json = JSON.stringify(newUser)
+      //const value = Buffer.from(json).toString('base64')
+      
+      const { id } = await createSession(email);
 
-    
-      console.log(newUser)
-    
-    //const user = await getUserByEmail(email)
-    //const dbConnection = await connectToDatabase();
-    //const db = dbConnection.db;
-
-    // Is there a user with such an email?
-    //const user = await db.collection('users').findOne({ email: email });
-
-    /*if(user){
-        return {
-            status:409,
-            body: {
-                message: 'User already exists'
-            }
-        }
-    }*/
-
-    //await registerUser({email,password})
-
-    /*await db.collection('users').insertOne({
-        email: email,
-        password: password
-    });*/
-
-
-    const { id } = await createSession(email)
-    
-    return {
-        status:201,
-        headers: {
-            'Set-Cookie': serialize('session_id',id, {
-                path:'/',
-                httpOnly: true,
-                sameSite: 'strict',
-                secure: process.env.NODE_ENV === 'production',
-                maxAge: 60 * 60 * 24 * 7
-            })
-        },
-        body: {
-            message : 'Successfully signed'
-        }
+      return {
+		status: 201,
+		headers: {
+			'Set-Cookie': serialize('jwt', id, {
+				path: '/',
+				httpOnly: true,
+				sameSite: 'strict',
+				secure: process.env.NODE_ENV === 'production',
+				maxAge: 60 * 60 * 24 * 7, // one week
+			}),
+		},
+		body: {
+			message: 'Successfully signed up',
+		},
+	};
     }
-}
-
-
-
-/*import { createSession, getUserByEmail, registerUser } from "./_db";
-import {serialize} from 'cookie'
-
-export async function post({body:{email,password}}){
-    
-    const user = await getUserByEmail(email)
-
-    if(user){
-        return {
-            status:409,
-            body: {
-                message: 'User already exists'
-            }
-        }
-    }
-
-    await registerUser({email,password})
-
-    const { id } = await createSession(email)
-    
-    return {
-        status:201,
-        headers: {
-            'Set-Cookie': serialize('session_id',id, {
-                path:'/',
-                httpOnly: true,
-                sameSite: 'strict',
-                secure: process.env.NODE_ENV === 'production',
-                maxAge: 60 * 60 * 24 * 7
-            })
-        },
-        body: {
-            message : 'Successfully signed'
-        }
-    }
-}*/
-
-
 
 
